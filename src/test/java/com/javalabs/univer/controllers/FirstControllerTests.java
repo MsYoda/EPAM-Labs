@@ -67,9 +67,9 @@ public class FirstControllerTests extends Assert {
     public void TestGetDataWithValue()
     {
         ProcessValueResponse answer = new ProcessValueResponse();
-        answer.setValue(50);
-        answer.setLower(5);
-        answer.setHigher(60);
+        answer.getResult().setValue(50);
+        answer.getResult().setLower(5);
+        answer.getResult().setHigher(60);
 
         Mockito.when(controllerService.processValue(50)).thenReturn(answer);
 
@@ -81,8 +81,8 @@ public class FirstControllerTests extends Assert {
         try {
             ResponseEntity<ProcessValueResponse> result = controller.getData(50);
             Mockito.verify(dbConnector).saveToDB(Mockito.any());
-            Assertions.assertTrue((result.getBody().getHigher() > 50) &&
-                    (result.getBody().getLower() < 50));
+            Assertions.assertTrue((result.getBody().getResult().getHigher() > 50) &&
+                    (result.getBody().getResult().getLower() < 50));
 
         }
         catch (UncheckedException | RequestIOException error)
@@ -99,15 +99,15 @@ public class FirstControllerTests extends Assert {
 
         PostProcessValueResponse result = new PostProcessValueResponse();
         ProcessValueResponse response = new ProcessValueResponse();
-        response.setHigher(10);
-        response.setLower(-10);
-        response.setValue(1);
+        response.getResult().setHigher(10);
+        response.getResult().setLower(-10);
+        response.getResult().setValue(1);
         Mockito.when(controllerService.processValue(1)).thenReturn(response);
         result.addCalculationsResult(response);
         response = new ProcessValueResponse();
-        response.setHigher(50);
-        response.setLower(-5);
-        response.setValue(10);
+        response.getResult().setHigher(50);
+        response.getResult().setLower(-5);
+        response.getResult().setValue(10);
         Mockito.when(controllerService.processValue(10)).thenReturn(response);
         result.addCalculationsResult(response);
 
