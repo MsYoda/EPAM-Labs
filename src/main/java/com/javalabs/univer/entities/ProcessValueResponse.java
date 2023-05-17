@@ -7,51 +7,34 @@ import jakarta.persistence.Id;
 
 import java.util.Comparator;
 
-@Entity
 public class ProcessValueResponse extends ServiceResponse{
+    public Result getResult() {
+        return result;
+    }
+
+    public void setResult(Result result) {
+        this.result = result;
+    }
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer higher;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer lower;
-    @Id
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer value;
+    Result result;
 
     static public Comparator<ProcessValueResponse> lowerComparator = new Comparator<ProcessValueResponse>() {
         @Override
         public int compare(ProcessValueResponse o1, ProcessValueResponse o2) {
-            return o1.getLower().compareTo(o2.getLower());
+            return o1.getResult().getLower().compareTo(o2.getResult().getLower());
         }
     };
 
     static public Comparator<ProcessValueResponse> higherComparator = new Comparator<ProcessValueResponse>() {
         @Override
         public int compare(ProcessValueResponse o1, ProcessValueResponse o2) {
-            return o1.getHigher().compareTo(o2.getHigher());
+            return o1.getResult().getHigher().compareTo(o2.getResult().getHigher());
         }
     };
-
-    public Integer getHigher() {
-        return higher;
+    public ProcessValueResponse()
+    {
+        result = new Result();
     }
 
-    public Integer getLower() {
-        return lower;
-    }
-
-    public Integer getValue() {
-        return value;
-    }
-
-    public void setHigher(Integer higher) {
-        this.higher = higher;
-    }
-
-    public void setLower(Integer lower) {
-        this.lower = lower;
-    }
-
-    public void setValue(Integer value) {
-        this.value = value;
-    }
 }

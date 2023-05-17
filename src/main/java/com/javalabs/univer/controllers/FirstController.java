@@ -1,9 +1,6 @@
 package com.javalabs.univer.controllers;
 
-import com.javalabs.univer.entities.PostInput;
-import com.javalabs.univer.entities.PostProcessValueResponse;
-import com.javalabs.univer.entities.ProcessValueResponse;
-import com.javalabs.univer.entities.RandomValuesList;
+import com.javalabs.univer.entities.*;
 import com.javalabs.univer.exceptions.RequestIOException;
 import com.javalabs.univer.repositories.ProcessValueRep;
 import com.javalabs.univer.service.*;
@@ -55,7 +52,7 @@ public class FirstController
 
             logger.log(Level.INFO, "getData() Trying to process value = " + value);
             result = service.processValue(value);
-            connectorService.saveToDB(result);
+            connectorService.saveToDB(result.getResult());
 
             logger.log(Level.INFO, "getData() Proccessing sucseed!" );
             result.setStatus(HttpStatus.OK);
@@ -77,8 +74,10 @@ public class FirstController
 
     @GetMapping("/dbtest")
     public ResponseEntity<ProcessValueResponse> getAllCache(@RequestParam int value) {
-        ProcessValueResponse response = connectorService.getFromDB(value);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        Result response = connectorService.getFromDB(value);
+        ProcessValueResponse result = new ProcessValueResponse() ;
+        result.setResult(response);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/cache")
@@ -99,7 +98,7 @@ public class FirstController
             try {
                 validator.checkInt(currentElement.getValue(), 0, 150);
                 ProcessValueResponse serviceResult = service.processValue(currentElement.getValue());
-                connectorService.saveToDB(serviceResult);
+                connectorService.saveToDB(serviceResult.getResult());
                 result.addCalculationsResult(serviceResult);
             }
             catch (Error | RuntimeException | RequestIOException except)
@@ -110,12 +109,12 @@ public class FirstController
             }
         });
 
-        result.setMinLower(result.getCalculations().stream().min(ProcessValueResponse.lowerComparator).get().getLower());
-        result.setMinHigher(result.getCalculations().stream().min(ProcessValueResponse.higherComparator).get().getHigher());
+        result.setMinLower(result.getCalculations().stream().min(ProcessValueResponse.lowerComparator).get().getResult().getLower());
+        result.setMinHigher(result.getCalculations().stream().min(ProcessValueResponse.higherComparator).get().getResult().getHigher());
 
         //result.setMaxLower(result.getCalculations().stream().max(ProcessValueResponse.lowerComparator).get().getLower());
-        result.setMaxLower(result.getCalculations().stream().map(x -> x.getLower()).max(Integer::compareTo).get());
-        result.setMaxHigher(result.getCalculations().stream().max(ProcessValueResponse.higherComparator).get().getHigher());
+        result.setMaxLower(result.getCalculations().stream().map(x -> x.getResult().getLower()).max(Integer::compareTo).get());
+        result.setMaxHigher(result.getCalculations().stream().max(ProcessValueResponse.higherComparator).get().getResult().getHigher());
 
         if(errors.get()) resultStatus = HttpStatus.CREATED;
 

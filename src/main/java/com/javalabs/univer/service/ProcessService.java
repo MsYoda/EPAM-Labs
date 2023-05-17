@@ -21,13 +21,13 @@ public class ProcessService {
         }
 
         ProcessValueResponse result = new ProcessValueResponse();
-        result.setValue(value);
+        result.getResult().setValue(value);
 
         int number = (int) ((Math.random() * ((value - 1) - ((value - 1) - 100))) + ((value - 1) - 100));
-        result.setLower(number);
+        result.getResult().setLower(number);
 
         number = (int) ((Math.random() * (((value + 1) + 100) - (value + 1))) + (value + 1));
-        result.setHigher(number);
+        result.getResult().setHigher(number);
         cache.addData(value, result);
         return result;
     }
