@@ -6,6 +6,8 @@ import com.javalabs.univer.repositories.ProcessValueRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class DBConnectionService {
     @Autowired
@@ -16,10 +18,14 @@ public class DBConnectionService {
         responseRepository.save(entity);
     }
 
-    public Result getFromDB(Integer key)
+    public Optional<Result> getFromDB(Integer key)
     {
-        if (responseRepository.existsById(key)) return responseRepository.findById(key).get();
-        return null;
+        Optional<Result> result = Optional.empty();
+        if (responseRepository.existsById(key))
+        {
+            return responseRepository.findById(key);
+        }
+        return result;
     }
 
     public Boolean valueExist(Integer key)

@@ -9,8 +9,7 @@ public class Result {
     private Integer lower;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id = 0;
+    private Integer id;
     public Integer getId() {
         return id;
     }

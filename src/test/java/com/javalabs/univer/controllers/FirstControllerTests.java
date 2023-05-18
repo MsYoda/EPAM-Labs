@@ -1,8 +1,6 @@
 package com.javalabs.univer.controllers;
 
-import com.javalabs.univer.entities.PostInput;
-import com.javalabs.univer.entities.PostProcessValueResponse;
-import com.javalabs.univer.entities.ProcessValueResponse;
+import com.javalabs.univer.entities.*;
 import com.javalabs.univer.exceptions.RequestIOException;
 import com.javalabs.univer.exceptions.UncheckedException;
 import com.javalabs.univer.service.*;
@@ -18,6 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 
 import java.util.LinkedList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -34,59 +37,33 @@ public class FirstControllerTests extends Assert {
     private RequestsCounter requestsCounter;
     @Mock
     private DBConnectionService dbConnector;
+    @Mock
+    private IDService idService;
 
     @InjectMocks
     private FirstController controller;
 
-
     @Test
-    public void TestGetDataWithExceptions() throws RequestIOException, RuntimeException
-    {
-        Mockito.doNothing()
-                .when(requestsCounter).addRequest();
+    public void TestGetDataAsyncWithExceptions() throws RequestIOException {
+        Mockito.doThrow(RequestIOException.class).when(validator).checkInt(-1, 0, 150);
+        Mockito.doThrow(NullPointerException.class).when(validator).checkInt(-10, 0, 150);
 
-        Mockito.doThrow(new RequestIOException("Error"))
-                .when(validator).checkInt(-5, 0, 150);
-        Mockito.doThrow(new RuntimeException())
-                .when(validator).checkInt(-6, 0, 150);
-
-        MockitoAnnotations.initMocks(this);
-
-        Assertions.assertThrows(RequestIOException.class, () -> {
-            controller.getData(-5);
+        assertThrows(RequestIOException.class, () ->{
+                controller.getDataAsync(-1);
         });
 
-
-        Assertions.assertThrows(UncheckedException.class, () -> {
-            controller.getData(-6);
+        assertThrows(UncheckedException.class, () ->{
+            controller.getDataAsync(-10);
         });
-
     }
 
     @Test
-    public void TestGetDataWithValue()
-    {
-        ProcessValueResponse answer = new ProcessValueResponse();
-        answer.getResult().setValue(50);
-        answer.getResult().setLower(5);
-        answer.getResult().setHigher(60);
+    public void TestGetDataAsyncWithCorrectValue() throws UncheckedException, RequestIOException, ExecutionException, InterruptedException {
+        Mockito.when(idService.createNewID()).thenReturn(1);
+        Mockito.when(controllerService.processValue(1)).thenReturn(new Result());
+        CompletableFuture<AsyncProcessValueResponse> response = controller.getDataAsync(1);
+        assertEquals(response.get().getId(), 1);
 
-        Mockito.when(controllerService.processValue(50)).thenReturn(answer);
-
-        Mockito.doNothing()
-                .when(requestsCounter).addRequest();
-
-        Mockito.doNothing().when(dbConnector).saveToDB(Mockito.any());
-
-        try {
-            ResponseEntity<ProcessValueResponse> result = controller.getData(50);
-            Mockito.verify(dbConnector).saveToDB(Mockito.any());
-            Assertions.assertTrue((result.getBody().getResult().getHigher() > 50) &&
-                    (result.getBody().getResult().getLower() < 50));
-
-        }
-        catch (UncheckedException | RequestIOException error)
-        {}
     }
 
     @Test
@@ -98,16 +75,16 @@ public class FirstControllerTests extends Assert {
         input.add(new PostInput(-100));
 
         PostProcessValueResponse result = new PostProcessValueResponse();
-        ProcessValueResponse response = new ProcessValueResponse();
-        response.getResult().setHigher(10);
-        response.getResult().setLower(-10);
-        response.getResult().setValue(1);
+        Result response = new Result();
+        response.setHigher(10);
+        response.setLower(-10);
+        response.setValue(1);
         Mockito.when(controllerService.processValue(1)).thenReturn(response);
         result.addCalculationsResult(response);
-        response = new ProcessValueResponse();
-        response.getResult().setHigher(50);
-        response.getResult().setLower(-5);
-        response.getResult().setValue(10);
+        response = new Result();
+        response.setHigher(50);
+        response.setLower(-5);
+        response.setValue(10);
         Mockito.when(controllerService.processValue(10)).thenReturn(response);
         result.addCalculationsResult(response);
 

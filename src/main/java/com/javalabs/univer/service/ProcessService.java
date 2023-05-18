@@ -1,6 +1,7 @@
 package com.javalabs.univer.service;
 
 import com.javalabs.univer.entities.ProcessValueResponse;
+import com.javalabs.univer.entities.Result;
 import com.javalabs.univer.repositories.ProcessValueRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,22 +14,22 @@ public class ProcessService {
     {
         this.cache = cache;
     }
-    public ProcessValueResponse processValue(int value)
+    public Result processValue(int value)
     {
-        if (cache.containsData(value))
+  /*      if (cache.containsData(value))
         {
-            return cache.getData(value);
-        }
+           // return cache.getData(value);
+        }*/
 
-        ProcessValueResponse result = new ProcessValueResponse();
-        result.getResult().setValue(value);
+        Result result = new Result();
+        result.setValue(value);
 
         int number = (int) ((Math.random() * ((value - 1) - ((value - 1) - 100))) + ((value - 1) - 100));
-        result.getResult().setLower(number);
+        result.setLower(number);
 
         number = (int) ((Math.random() * (((value + 1) + 100) - (value + 1))) + (value + 1));
-        result.getResult().setHigher(number);
-        cache.addData(value, result);
+        result.setHigher(number);
+       // cache.addData(value, result);
         return result;
     }
 

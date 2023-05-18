@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class PostProcessValueResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private LinkedList<ProcessValueResponse> calculations = new LinkedList<>();
+    private LinkedList<Result> calculations = new LinkedList<>();
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private LinkedList<String> errors = new LinkedList<>();
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -57,7 +57,7 @@ public class PostProcessValueResponse {
         this.maxHigher = maxHigher;
     }
 
-    public void addCalculationsResult(ProcessValueResponse result)
+    public void addCalculationsResult(Result result)
     {
         calculations.add(result);
     }
@@ -66,7 +66,7 @@ public class PostProcessValueResponse {
     {
         errors.add(error);
     }
-    public LinkedList<ProcessValueResponse> getCalculations() {
+    public LinkedList<Result> getCalculations() {
         return calculations;
     }
 
