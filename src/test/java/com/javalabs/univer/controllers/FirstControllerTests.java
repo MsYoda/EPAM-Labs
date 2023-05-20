@@ -61,8 +61,8 @@ public class FirstControllerTests extends Assert {
     public void TestGetDataAsyncWithCorrectValue() throws UncheckedException, RequestIOException, ExecutionException, InterruptedException {
         Mockito.when(idService.createNewID()).thenReturn(1);
         Mockito.when(controllerService.processValue(1)).thenReturn(new Result());
-        CompletableFuture<AsyncProcessValueResponse> response = controller.getDataAsync(1);
-        assertEquals(response.get().getId(), 1);
+        ResponseEntity<AsyncProcessValueResponse> response = controller.getDataAsync(1);
+        assertEquals(response.getBody().getId(), 1);
 
     }
 

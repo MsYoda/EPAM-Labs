@@ -43,60 +43,34 @@ public class FirstController
     }
 
 
-   /* @GetMapping("/random")
-    public ResponseEntity<ProcessValueResponse> getData(@RequestParam int value) throws RequestIOException, UncheckedException {
-        try {
-            ProcessValueResponse result;
-
-            requestsCounter.addRequest();
-
-            logger.log(Level.INFO, "getData() Checking value = " + value);
-
-            validator.checkInt(value, 0, 150);
-
-            logger.log(Level.INFO, "getData() Trying to process value = " + value);
-           // result = service.processValue(value);
-
-           // connectorService.saveToDB(result.getResult());
-
-            logger.log(Level.INFO, "getData() Proccessing sucseed!" );
-           // result.setStatus(HttpStatus.OK);
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        }
-        catch (Error | RuntimeException error)
-        {
-            logger.log(Level.ERROR, "getData() Runtime error in controller!");
-            throw new UncheckedException("getData() Crirtical Unchecked Error!");
-        }
-    }*/
-
-    @Async
     @GetMapping("/randomAsync")
-    public CompletableFuture<AsyncProcessValueResponse> getDataAsync(@RequestParam int value)  throws RequestIOException, UncheckedException{
+    public ResponseEntity<AsyncProcessValueResponse> getDataAsync(@RequestParam int value)  throws RequestIOException, UncheckedException{
         AsyncProcessValueResponse response = new AsyncProcessValueResponse();
         try {
             validator.checkInt(value, 0, 150);
-            Integer id = idService.createNewID();
-            this.processValue(value, id);
-            response.setId(id);
         }
         catch (Error | RuntimeException error)
         {
-            response.setError("Critical error!! ");
             logger.log(Level.ERROR, "getData() Runtime error in controller!");
             throw new UncheckedException("getData() Crirtical Unchecked Error!");
         }
-        return CompletableFuture.completedFuture(response);
+
+        Integer id = idService.createNewID();
+        response.setId(id);
+        response.setStatus(HttpStatus.ACCEPTED);
+
+        CompletableFuture<Void> task = CompletableFuture.runAsync(() -> {
+
+            logger.log(Level.INFO, "getData() Trying to process value = " + value);
+            Result calcs = service.processValue(value);
+
+            calcs.setId(id);
+            connectorService.saveToDB(calcs);
+        });
+
+        return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
-    private void processValue(int value, int id)
-    {
-        logger.log(Level.INFO, "getData() Trying to process value = " + value);
-        Result calcs = service.processValue(value);
-
-        calcs.setId(id);
-        connectorService.saveToDB(calcs);
-    }
     @GetMapping("/allcache")
     public ResponseEntity<RandomValuesList> getAllCache() {
         RandomValuesList list = new RandomValuesList();
@@ -167,6 +141,34 @@ public class FirstController
         return new ResponseEntity<>(result, resultStatus);
     }
 
+       /* @GetMapping("/random")
+    public ResponseEntity<ProcessValueResponse> getData(@RequestParam int value) throws RequestIOException, UncheckedException {
+        try {
+            ProcessValueResponse result;
+
+            requestsCounter.addRequest();
+
+            logger.log(Level.INFO, "getData() Checking value = " + value);
+
+            validator.checkInt(value, 0, 150);
+
+            logger.log(Level.INFO, "getData() Trying to process value = " + value);
+           // result = service.processValue(value);
+
+           // connectorService.saveToDB(result.getResult());
+
+            logger.log(Level.INFO, "getData() Proccessing sucseed!" );
+           // result.setStatus(HttpStatus.OK);
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        }
+        catch (Error | RuntimeException error)
+        {
+            logger.log(Level.ERROR, "getData() Runtime error in controller!");
+            throw new UncheckedException("getData() Crirtical Unchecked Error!");
+        }
+    }*/
+
 }
+
 
 
