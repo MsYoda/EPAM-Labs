@@ -13,11 +13,11 @@ public class CalulationsID {
     {
         this.id = 0;
     }
-    public Integer get() {
+    public Integer getID() {
         return id;
     }
 
-    public void set(Integer id) {
+    public void setID(Integer id) {
         this.id = id;
     }
     @Id

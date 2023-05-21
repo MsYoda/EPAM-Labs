@@ -2,10 +2,8 @@ package com.javalabs.univer.service;
 
 import com.javalabs.univer.entities.CalulationsID;
 import com.javalabs.univer.repositories.IDRepositiry;
-import jakarta.persistence.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
@@ -20,13 +18,13 @@ public class IDService {
         this.id = new CalulationsID();
         this.repositiry = repositiry;
         Optional<CalulationsID> fromDBOpt = repositiry.findFirstByOrderByIdDesc();
-        if (fromDBOpt.isPresent()) this.id.set(fromDBOpt.get().get());
+        if (fromDBOpt.isPresent()) this.id.setID(fromDBOpt.get().getID());
     }
     public synchronized Integer createNewID()
     {
-        this.id.set(this.id.get() + 1);
+        this.id.setID(this.id.getID() + 1);
         repositiry.save(this.id);
-        return this.id.get() - 1;
+        return this.id.getID() - 1;
     }
 
 
